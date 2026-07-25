@@ -11,9 +11,9 @@ export const handler = withErrorHandling(async (event) => {
 
   if (event.httpMethod === "GET") {
     const rows = await sql`
-      select id, category, name, price_kes, note, image_url
-      from products
-      order by category asc, sort_order asc
+      select id, name, price_kes, description, is_active
+      from meal_plans
+      order by sort_order asc
     `;
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(rows) };
   }
@@ -26,34 +26,25 @@ export const handler = withErrorHandling(async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
     }
 
-    const category = payload.category;
     const name = sanitize(payload.name, 100);
     const priceKes = Number(payload.priceKes);
-    const note = sanitize(payload.note, 200);
-    const imageUrl = sanitize(payload.imageUrl, 500);
+    const description = sanitize(payload.description, 1000);
 
-    const isValid =
-      (category === "supplement" || category === "gym_wear") &&
-      name &&
-      Number.isFinite(priceKes) &&
-      priceKes > 0;
+    const isValid = name && Number.isFinite(priceKes) && priceKes > 0 && description;
 
     if (!isValid) {
       return { statusCode: 400, body: JSON.stringify({ error: "Missing or invalid fields" }) };
     }
 
     const rows = await sql`
-      insert into products (category, name, price_kes, note, image_url)
-      values (${category}, ${name}, ${priceKes}, ${note || null}, ${imageUrl || null})
-      on conflict (category, name) do nothing
-      returning id, category, name, price_kes, note, image_url
+      insert into meal_plans (name, price_kes, description)
+      values (${name}, ${priceKes}, ${description})
+      on conflict (name) do nothing
+      returning id, name, price_kes, description, is_active
     `;
 
     if (!rows[0]) {
-      return {
-        statusCode: 409,
-        body: JSON.stringify({ error: "A product with this name already exists in this category" }),
-      };
+      return { statusCode: 409, body: JSON.stringify({ error: "A meal plan with this name already exists" }) };
     }
 
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(rows[0]) };
@@ -68,13 +59,23 @@ export const handler = withErrorHandling(async (event) => {
     }
 
     const id = typeof payload.id === "string" ? payload.id : "";
-    const imageUrl = sanitize(payload.imageUrl, 500);
+    const name = sanitize(payload.name, 100);
+    const priceKes = Number(payload.priceKes);
+    const description = sanitize(payload.description, 1000);
+    const isActive = Boolean(payload.isActive);
 
-    if (!id) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing id" }) };
+    const isValid = id && name && Number.isFinite(priceKes) && priceKes > 0 && description;
+
+    if (!isValid) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing or invalid fields" }) };
     }
 
-    await sql`update products set image_url = ${imageUrl || null} where id = ${id}`;
+    await sql`
+      update meal_plans
+      set name = ${name}, price_kes = ${priceKes}, description = ${description}, is_active = ${isActive}
+      where id = ${id}
+    `;
+
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ok: true }) };
   }
 
@@ -85,7 +86,7 @@ export const handler = withErrorHandling(async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: "Missing id" }) };
     }
 
-    await sql`delete from products where id = ${id}`;
+    await sql`delete from meal_plans where id = ${id}`;
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ok: true }) };
   }
 

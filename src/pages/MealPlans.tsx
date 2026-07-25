@@ -1,27 +1,9 @@
 import { buildWhatsAppLink } from "../services/whatsapp";
-
-const mealPlans = [
-  {
-    name: "Lean Cut",
-    priceKes: 3500,
-    description:
-      "Calorie-deficit meal plan built around Nairobi grocery staples, structured for fat loss without muscle loss.",
-  },
-  {
-    name: "Lean Bulk",
-    priceKes: 3500,
-    description:
-      "Surplus meal plan for steady muscle gain, macro-balanced and shopping-list ready.",
-  },
-  {
-    name: "Competition Peak",
-    priceKes: 6000,
-    description:
-      "Precision macro and water-manipulation plan for the final weeks before a show, paired with Competition Prep coaching.",
-  },
-];
+import { useMealPlans } from "../hooks/useMealPlans";
 
 export default function MealPlans() {
+  const { mealPlans, error } = useMealPlans();
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       <h1 className="font-display text-4xl uppercase text-bone">Meal Plans</h1>
@@ -29,11 +11,19 @@ export default function MealPlans() {
         Macro-based meal plans built around food available in Nairobi, delivered as a PDF with a
         shopping list.
       </p>
+
+      {error && (
+        <p className="mt-8 font-body text-steel">Couldn't load meal plans right now — check back soon.</p>
+      )}
+      {!error && mealPlans === null && (
+        <p className="mt-8 font-mono text-xs uppercase tracking-widest text-steel">Loading…</p>
+      )}
+
       <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {mealPlans.map((plan) => (
-          <div key={plan.name} className="flex flex-col gap-4 border border-steel/20 bg-charcoal p-6">
+        {mealPlans?.map((plan) => (
+          <div key={plan.id} className="flex flex-col gap-4 border border-steel/20 bg-charcoal p-6">
             <h3 className="font-display text-2xl uppercase text-bone">{plan.name}</h3>
-            <p className="font-mono text-sm text-steel">KES {plan.priceKes.toLocaleString()}</p>
+            <p className="font-mono text-sm text-steel">KES {plan.price_kes.toLocaleString()}</p>
             <p className="flex-1 font-body text-sm text-bone/90">{plan.description}</p>
             <a
               href={buildWhatsAppLink(`Hi Maxverse Fitness, I'd like to get the ${plan.name} meal plan.`)}
@@ -45,6 +35,7 @@ export default function MealPlans() {
             </a>
           </div>
         ))}
+        {mealPlans?.length === 0 && <p className="font-body text-steel">New meal plans coming soon.</p>}
       </div>
     </section>
   );
