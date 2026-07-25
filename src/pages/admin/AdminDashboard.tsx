@@ -50,7 +50,28 @@ type PlanDraft = {
   isActive: boolean;
 };
 
+type AdminOrder = {
+  id: string;
+  item_type: "plan" | "product";
+  item_name: string;
+  amount_kes: number;
+  phone: string;
+  recipient_name: string | null;
+  delivery_address: string | null;
+  delivery_notes: string | null;
+  status: "pending" | "paid" | "failed" | "cancelled";
+  mpesa_receipt_number: string | null;
+  created_at: string;
+};
+
 const emptyForm = { clientName: "", beforeImageUrl: "", afterImageUrl: "", summary: "" };
+
+const ORDER_STATUS_COLOR: Record<AdminOrder["status"], string> = {
+  paid: "text-moss",
+  failed: "text-flame",
+  cancelled: "text-flame",
+  pending: "text-steel",
+};
 
 export default function AdminDashboard() {
   const { getToken } = useAuth();
@@ -61,6 +82,7 @@ export default function AdminDashboard() {
   const [plans, setPlans] = useState<AdminPlan[] | null>(null);
   const [planDrafts, setPlanDrafts] = useState<Record<string, PlanDraft>>({});
   const [planStatus, setPlanStatus] = useState<Record<string, "idle" | "saving" | "error">>({});
+  const [orders, setOrders] = useState<AdminOrder[] | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 
@@ -114,11 +136,17 @@ export default function AdminDashboard() {
     }
   }
 
+  async function loadOrders() {
+    const response = await authedFetch("/.netlify/functions/admin-orders");
+    if (response.ok) setOrders(await response.json());
+  }
+
   useEffect(() => {
     loadMessages();
     loadEntries();
     loadProducts();
     loadPlans();
+    loadOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -333,6 +361,37 @@ export default function AdminDashboard() {
             </div>
           ))}
           {products?.length === 0 && <p className="font-body text-steel">No products yet.</p>}
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <h2 className="font-display text-2xl uppercase text-bone">Orders</h2>
+        <p className="mt-2 font-body text-sm text-steel">
+          Product orders include a delivery address — plans have nothing to ship.
+        </p>
+        <div className="mt-6 flex flex-col gap-4">
+          {orders?.map((order) => (
+            <div key={order.id} className="border border-steel/20 bg-charcoal p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-steel">
+                <span>
+                  {order.item_name} · KES {order.amount_kes.toLocaleString()} · {order.phone}
+                </span>
+                <span className={ORDER_STATUS_COLOR[order.status]}>{order.status.toUpperCase()}</span>
+              </div>
+              {order.item_type === "product" &&
+                (order.recipient_name || order.delivery_address || order.delivery_notes) && (
+                  <div className="mt-2 font-body text-sm text-bone">
+                    {order.recipient_name && <p>Recipient: {order.recipient_name}</p>}
+                    {order.delivery_address && <p>Address: {order.delivery_address}</p>}
+                    {order.delivery_notes && <p>Notes: {order.delivery_notes}</p>}
+                  </div>
+                )}
+              <p className="mt-2 font-mono text-xs text-steel">
+                {new Date(order.created_at).toLocaleString()}
+              </p>
+            </div>
+          ))}
+          {orders?.length === 0 && <p className="font-body text-steel">No orders yet.</p>}
         </div>
       </div>
 

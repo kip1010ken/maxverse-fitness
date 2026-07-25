@@ -14,7 +14,12 @@ export default function Checkout() {
   const itemName = searchParams.get("name") ?? "";
   const itemPrice = searchParams.get("price") ?? "";
 
+  const isProduct = itemType === "product";
+
   const [phone, setPhone] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [deliveryNotes, setDeliveryNotes] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -29,7 +34,12 @@ export default function Checkout() {
       const response = await fetch("/.netlify/functions/orders-initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ itemType, itemId, phone }),
+        body: JSON.stringify({
+          itemType,
+          itemId,
+          phone,
+          ...(isProduct && { recipientName, deliveryAddress, deliveryNotes }),
+        }),
       });
 
       const data = await response.json();
@@ -127,6 +137,43 @@ export default function Checkout() {
               className="border border-steel/30 bg-transparent px-4 py-3 font-body text-bone"
             />
           </label>
+
+          {isProduct && (
+            <>
+              <label className="flex flex-col gap-2">
+                <span className="font-mono text-xs uppercase tracking-widest text-steel">Recipient name</span>
+                <input
+                  required
+                  value={recipientName}
+                  onChange={(event) => setRecipientName(event.target.value)}
+                  className="border border-steel/30 bg-transparent px-4 py-3 font-body text-bone"
+                />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="font-mono text-xs uppercase tracking-widest text-steel">Delivery address</span>
+                <input
+                  required
+                  placeholder="Building, street, area — Nairobi"
+                  value={deliveryAddress}
+                  onChange={(event) => setDeliveryAddress(event.target.value)}
+                  className="border border-steel/30 bg-transparent px-4 py-3 font-body text-bone"
+                />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className="font-mono text-xs uppercase tracking-widest text-steel">
+                  Size / delivery notes (optional)
+                </span>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. size M, leave with the gate guard"
+                  value={deliveryNotes}
+                  onChange={(event) => setDeliveryNotes(event.target.value)}
+                  className="border border-steel/30 bg-transparent px-4 py-3 font-body text-bone"
+                />
+              </label>
+            </>
+          )}
+
           <button
             type="submit"
             disabled={status === "submitting"}

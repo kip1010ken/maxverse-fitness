@@ -2,6 +2,7 @@ import { sql } from "./_lib/db";
 import { requireAuth } from "./_lib/auth";
 import { initiateStkPush } from "./_lib/daraja";
 import { DARAJA_PHONE_PATTERN } from "./_lib/phone";
+import { sanitize } from "./_lib/sanitize";
 import { withErrorHandling } from "./_lib/withHandler";
 
 export const handler = withErrorHandling(async (event) => {
@@ -24,9 +25,17 @@ export const handler = withErrorHandling(async (event) => {
   const itemType = payload.itemType;
   const itemId = typeof payload.itemId === "string" ? payload.itemId : "";
   const phone = typeof payload.phone === "string" ? payload.phone.trim() : "";
+  const recipientName = sanitize(payload.recipientName, 100);
+  const deliveryAddress = sanitize(payload.deliveryAddress, 300);
+  const deliveryNotes = sanitize(payload.deliveryNotes, 500);
 
   if ((itemType !== "plan" && itemType !== "product") || !itemId || !DARAJA_PHONE_PATTERN.test(phone)) {
     return { statusCode: 400, body: JSON.stringify({ error: "Missing or invalid fields" }) };
+  }
+
+  // Plans have nothing to ship — only physical goods need a delivery address.
+  if (itemType === "product" && (!recipientName || !deliveryAddress)) {
+    return { statusCode: 400, body: JSON.stringify({ error: "Recipient name and delivery address are required" }) };
   }
 
   const item =
@@ -51,8 +60,14 @@ export const handler = withErrorHandling(async (event) => {
   }
 
   const orderRows = await sql`
-    insert into orders (user_id, item_type, item_id, item_name, amount_kes, phone)
-    values (${userId}, ${itemType}, ${itemId}, ${item.name}, ${item.price_kes}, ${phone})
+    insert into orders (
+      user_id, item_type, item_id, item_name, amount_kes, phone,
+      recipient_name, delivery_address, delivery_notes
+    )
+    values (
+      ${userId}, ${itemType}, ${itemId}, ${item.name}, ${item.price_kes}, ${phone},
+      ${recipientName || null}, ${deliveryAddress || null}, ${deliveryNotes || null}
+    )
     returning id
   `;
   const orderId = orderRows[0].id;
