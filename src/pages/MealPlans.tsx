@@ -1,3 +1,5 @@
+import { buildWhatsAppLink } from "../services/whatsapp";
+
 const mealPlans = [
   {
     name: "Lean Cut",
@@ -33,9 +35,14 @@ export default function MealPlans() {
             <h3 className="font-display text-2xl uppercase text-bone">{plan.name}</h3>
             <p className="font-mono text-sm text-steel">KES {plan.priceKes.toLocaleString()}</p>
             <p className="flex-1 font-body text-sm text-bone/90">{plan.description}</p>
-            <button className="rounded-sm border border-steel/40 py-2 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:border-flame hover:text-flame">
+            <a
+              href={buildWhatsAppLink(`Hi Maxverse Fitness, I'd like to get the ${plan.name} meal plan.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-sm border border-steel/40 py-2 text-center font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:border-flame hover:text-flame"
+            >
               Get {plan.name}
-            </button>
+            </a>
           </div>
         ))}
       </div>

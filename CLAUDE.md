@@ -30,18 +30,28 @@ Maxverse Fitness is a web application for a personal training business based in 
 - Branch naming: `feature/xyz`, `fix/xyz`
 
 ## Architecture Notes
-- Keep client-facing pages (plans, meal plans, supplements storefront) separate from admin/coach dashboard
+- Keep client-facing pages (plans, meal plans, supplements & gym wear storefront) separate from admin/coach dashboard
 - WhatsApp integration should be an isolated service/module so it can be swapped or extended independently
 - Payment flows (plan purchases, supplement sales and gym wear ) should be isolated from unrelated business logic for easier auditing
 - Netlify Functions have execution time limits — fine for typical API calls, but scheduled/long-running work (e.g. WhatsApp broadcast reminders) should use Netlify Scheduled Functions rather than a synchronous request
 
 ## Build & Run Commands
 ```bash
-# fill in once stack is set, e.g.:
-# npm install
-# npm run dev
-# npm run build
-# npm test
+npm install
+
+# Frontend only (no Netlify Functions — fine for pure UI work)
+npm run dev
+
+# Full stack, including Netlify Functions (plans, orders, admin, etc.)
+npx netlify-cli dev
+
+npm run build           # typecheck + production build
+npm run typecheck       # frontend + functions, no build
+npm test                # vitest
+
+# Apply a SQL file in db/ against DATABASE_URL (source .env first)
+set -a && source .env && set +a
+npm run db:migrate -- db/004_indexes.sql
 ```
 
 ## Hard Rules

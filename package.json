@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "npm run typecheck:frontend && npm run typecheck:functions",
+    "typecheck:frontend": "tsc -b",
+    "typecheck:functions": "tsc -p netlify/functions/tsconfig.json",
+    "db:migrate": "node scripts/run-sql.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.15.0",
@@ -19,13 +24,18 @@
   "devDependencies": {
     "@clerk/backend": "^1.13.0",
     "@netlify/functions": "^2.8.1",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
+    "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "jsdom": "^24.1.1",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3",
-    "vite": "^5.3.4"
+    "vite": "^5.3.4",
+    "vitest": "^2.0.5"
   }
 }

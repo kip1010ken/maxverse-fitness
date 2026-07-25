@@ -3,6 +3,7 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import Home from "./pages/Home";
 import Plans from "./pages/Plans";
 import MealPlans from "./pages/MealPlans";
@@ -12,6 +13,9 @@ import Contact from "./pages/Contact";
 import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
 import Account from "./pages/Account";
+import Checkout from "./pages/Checkout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -35,6 +39,16 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />

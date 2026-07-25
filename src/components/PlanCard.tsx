@@ -1,4 +1,8 @@
+import { Link } from "react-router-dom";
+import LoadBar from "./LoadBar";
+
 type PlanCardProps = {
+  id: string;
   name: string;
   priceKes: number;
   cadence: string;
@@ -6,9 +10,7 @@ type PlanCardProps = {
   features: string[];
 };
 
-import LoadBar from "./LoadBar";
-
-export default function PlanCard({ name, priceKes, cadence, intensity, features }: PlanCardProps) {
+export default function PlanCard({ id, name, priceKes, cadence, intensity, features }: PlanCardProps) {
   return (
     <div className="flex flex-col gap-5 border border-steel/20 bg-charcoal p-6 transition-colors hover:border-flame/60">
       <div>
@@ -26,9 +28,12 @@ export default function PlanCard({ name, priceKes, cadence, intensity, features 
           </li>
         ))}
       </ul>
-      <button className="rounded-sm border border-steel/40 py-2 font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:border-flame hover:text-flame">
+      <Link
+        to={`/checkout?type=plan&id=${id}&name=${encodeURIComponent(name)}&price=${priceKes}`}
+        className="rounded-sm border border-steel/40 py-2 text-center font-mono text-xs uppercase tracking-widest text-bone transition-colors hover:border-flame hover:text-flame"
+      >
         Choose {name}
-      </button>
+      </Link>
     </div>
   );
 }

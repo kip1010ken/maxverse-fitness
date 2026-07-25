@@ -3,10 +3,10 @@ import { withErrorHandling } from "./_lib/withHandler";
 
 export const handler = withErrorHandling(async () => {
   const rows = await sql`
-    select id, client_name, before_image_url, after_image_url, summary, created_at
-    from progress_entries
-    where is_published = true
-    order by created_at desc
+    select id, category, name, price_kes, note, image_url
+    from products
+    where is_active = true
+    order by sort_order asc
   `;
 
   return {

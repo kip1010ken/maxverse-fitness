@@ -45,8 +45,8 @@ export default function Account() {
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl uppercase text-bone">My Account</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-display text-3xl uppercase text-bone sm:text-4xl">My Account</h1>
         <UserButton afterSignOutUrl="/" />
       </div>
 

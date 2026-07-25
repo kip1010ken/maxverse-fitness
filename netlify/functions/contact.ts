@@ -1,13 +1,9 @@
-import type { Handler } from "@netlify/functions";
 import { sql } from "./_lib/db";
+import { sanitize } from "./_lib/sanitize";
+import { CONTACT_PHONE_PATTERN } from "./_lib/phone";
+import { withErrorHandling } from "./_lib/withHandler";
 
-const PHONE_PATTERN = /^\+?\d{9,15}$/;
-
-function sanitize(value: unknown, maxLength: number): string {
-  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
-}
-
-export const handler: Handler = async (event) => {
+export const handler = withErrorHandling(async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
@@ -24,7 +20,7 @@ export const handler: Handler = async (event) => {
   const email = sanitize(payload.email, 200);
   const message = sanitize(payload.message, 2000);
 
-  if (!name || !message || !PHONE_PATTERN.test(phone)) {
+  if (!name || !message || !CONTACT_PHONE_PATTERN.test(phone)) {
     return { statusCode: 400, body: JSON.stringify({ error: "Missing or invalid fields" }) };
   }
 
@@ -38,4 +34,4 @@ export const handler: Handler = async (event) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ok: true }),
   };
-};
+});
