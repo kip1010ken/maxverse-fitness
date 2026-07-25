@@ -1,10 +1,12 @@
 import { NavLink } from "react-router-dom";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/plans", label: "Plans" },
   { to: "/meal-plans", label: "Meal Plans" },
   { to: "/supplements", label: "Supplements" },
+  { to: "/progress", label: "Results" },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -31,12 +33,31 @@ export default function NavBar() {
             </li>
           ))}
         </ul>
-        <NavLink
-          to="/contact"
-          className="rounded-sm bg-flame px-4 py-2 font-mono text-xs uppercase tracking-widest text-bone transition-opacity hover:opacity-90"
-        >
-          Book a session
-        </NavLink>
+        <div className="flex items-center gap-4">
+          <SignedIn>
+            <NavLink
+              to="/account"
+              className="hidden font-mono text-xs uppercase tracking-widest text-steel hover:text-bone md:block"
+            >
+              My Account
+            </NavLink>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <NavLink
+              to="/sign-in"
+              className="hidden font-mono text-xs uppercase tracking-widest text-steel hover:text-bone md:block"
+            >
+              Sign in
+            </NavLink>
+          </SignedOut>
+          <NavLink
+            to="/contact"
+            className="rounded-sm bg-flame px-4 py-2 font-mono text-xs uppercase tracking-widest text-bone transition-opacity hover:opacity-90"
+          >
+            Book a session
+          </NavLink>
+        </div>
       </nav>
     </header>
   );
