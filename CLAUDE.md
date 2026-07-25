@@ -3,11 +3,12 @@
 ## Project Overview
 Maxverse Fitness is a web application for a personal training business based in Nairobi, Kenya. Core goals:
 - Client outreach and engagement
-- Sell fitness plans
+- Sell fitness plans (3 tier plans)
 - Offer virtual personal training
 - Offer meal plans
-- Sell supplements
+- Sell supplements and gym wear
 - WhatsApp integration for quick client engagement
+- show case clients progress, i.e before and after
 
 ## Tech Stack
 - Frontend: React 18 + TypeScript, built with Vite
@@ -31,7 +32,7 @@ Maxverse Fitness is a web application for a personal training business based in 
 ## Architecture Notes
 - Keep client-facing pages (plans, meal plans, supplements storefront) separate from admin/coach dashboard
 - WhatsApp integration should be an isolated service/module so it can be swapped or extended independently
-- Payment flows (plan purchases, supplement sales) should be isolated from unrelated business logic for easier auditing
+- Payment flows (plan purchases, supplement sales and gym wear ) should be isolated from unrelated business logic for easier auditing
 - Netlify Functions have execution time limits — fine for typical API calls, but scheduled/long-running work (e.g. WhatsApp broadcast reminders) should use Netlify Scheduled Functions rather than a synchronous request
 
 ## Build & Run Commands
