@@ -5,3 +5,12 @@
 
 [dev]
   framework = "vite"
+
+# Client-side routing (react-router) — without this, any deep link or
+# refresh on a non-root path (e.g. /plans, /admin) 404s, since Netlify's
+# static file server has no route for it. Function requests and real
+# static assets are matched before this catch-all.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
